@@ -1,0 +1,66 @@
+import dbConnect from '../../../../services/dbService';
+import checkAuthentication from '../../../../utils/authenticationUtil';
+import { logError } from '../../../../utils/loggingUtil';
+import LearningModule from '../../../../models/learningModulesModel';
+import Item from '../../../../models/itemsModel';
+
+export default async function learningModulesData(req, res) {
+    try {
+
+        await dbConnect();
+
+        let auth = checkAuthentication(req.headers.authorization);
+        if (!(auth && auth.success)) {
+            res.status(auth.statusCode).send(auth.message);
+            return;
+        }
+
+        const moduleId = req.query.moduleId;
+        if (!LearningModule.exists({ module_id: moduleId })) {
+            res.status(403).send("Module Not Found");
+            return;
+        }
+
+        const { method } = req;
+        switch (method) {
+            case 'GET':
+                const itemId = req.query.itemId;
+                if (!Item.exists({ item_id: itemId })) {
+                    res.status(403).send("Item Not Found");
+                    return;
+                }
+
+                const itemData = await Item.findOne({ module_id: moduleId }, { _id: false, items: true })
+                const item = {
+                    "item_id": itemData.item_id,
+                    "name": itemData.name,
+                    "image_url": "/api/file/learning/" + moduleId + "/" + itemData.item_id + "/image",
+                    "sound_url": "/api/file/learning/" + moduleId + "/" + itemData.item_id + "/sound",
+                    "timestamp": itemData.timestamp
+                }
+                res.status(200).json(item);
+                break;
+
+            default:
+                res.status(400).json("Path not found")
+                break;
+
+        }
+    } catch (error) {
+        // if anything goes wrong
+        let code = error.code;
+        let message = error.message;
+
+        logError(code, message);
+
+        switch (code) {
+            case 'CLIENT_ERROR':
+                break;
+            case 'EREFUSED':
+            default:
+                message = "Some went wrong; Please try again later";
+                break;
+        }
+        res.status(500).send(message);
+    }
+}

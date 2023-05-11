@@ -5,6 +5,7 @@ const MONGODB_URI = config.MONGODB_URI;
 
 export default (function () {
 
+  // If Connection URI is not specified
   if (!MONGODB_URI) {
     return function () {
       const error = new Error(DB_ERROR_MESSAGES["CONN_URI_UNDEF"]);
@@ -13,11 +14,13 @@ export default (function () {
     }
   }
 
+  // Return the Cached Mongoose Connection
   let cached = global.mongoose;
   if (!cached) {
     cached = global.mongoose = { conn: null, promise: null }
   }
 
+  // if no cached connection exists, create one
   return async function () {
     if (cached.conn) {
       return cached.conn;

@@ -61,7 +61,7 @@ const CircleLetters = function ({ word, clickHandler }) {
   )
 }
 
-const DrawInputHandler = ({ correctWord, successHandler, failureHandler }) => {
+const DrawInputHandler = ({ correctWord, successHandler, failureHandler, resetInput }) => {
   const [lines, setLines] = useState([]);
   const [currentLine, setCurrentLine] = useState([]);
   const [disabledPoints, setDisabledPoints] = useState([]);
@@ -73,13 +73,21 @@ const DrawInputHandler = ({ correctWord, successHandler, failureHandler }) => {
         currentLine[1].classList.remove("bg-gray-300");
         setCurrentLine([]);
       }
-      if(currWord === correctWord) {
-        if(successHandler) successHandler();
+      if (currWord === correctWord) {
+        if (successHandler) successHandler();
       } else {
-        if(failureHandler) failureHandler();
+        if (failureHandler) failureHandler();
       }
     }
   }, [currWord]);
+
+  useEffect(() => {
+    setLines([]);
+    if(currentLine.length > 0) currentLine[1].classList.remove("bg-gray-300");
+    setCurrentLine([]);
+    setDisabledPoints([]);
+    setCurrWord("");
+  }, [resetInput]);
 
   const handleLetterClick = (dot, target, letter) => {
     if (currWord.length === correctWord.length) return;

@@ -50,7 +50,7 @@ const Layout = function ({ children, title }) {
                 />
                 <div className="w-screen h-screen bg-main-bg-img">
                     <div className="w-full h-full bg-white bg-opacity-[0.85]">
-                        {state.userProfile && state.userProfile.isAdmin ? <div className="absolute left-1/2 top-8 -translate-x-1/2 text-2xl font-bold">Admin User</div> : null}
+                        {state.userProfile && state.userProfile.isAdmin ? <div className="hidden sm:block absolute left-1/2 top-8 -translate-x-1/2 text-2xl font-bold">Admin User</div> : null}
                         <div className="relative px-10 py-3 tall:py-6 flex items-center justify-between">
                             {router.route === "/" || router.route === "/admin" ?
                                 <Image src={'/images/logo.png'} alt={"logo"} width={40} height={50} /> :
@@ -64,7 +64,7 @@ const Layout = function ({ children, title }) {
                                 </div>
                             }
                             <div className="flex items-center">
-                                <h2 className="text-lg font-bold mr-3">Hi, {state.userProfile?.name}</h2>
+                                <h2 className="hidden sm:block text-lg font-bold mr-3">Hi, {state.userProfile?.name}</h2>
                                 <UserDropdown />
                             </div>
                         </div>

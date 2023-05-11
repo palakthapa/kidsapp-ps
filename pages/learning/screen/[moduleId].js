@@ -7,7 +7,7 @@ import KeyboardInputHandler from '../../../components/LearningInputTypes/keyboar
 import { useAppState } from '../../../store'
 import SoundButton from '../../../components/Commons/soundButton';
 import Icon from '../../../components/Commons/icon';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import AxiosHelper from '../../../utils/axiosUtil';
 
 export default function LearningScreen() {
@@ -17,6 +17,7 @@ export default function LearningScreen() {
     const [failureMessage, setFailureMessage] = useState(null);
     const [nextActive, setNextActive] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [resetInput, setResetInput] = useState(false);
 
     const router = useRouter();
     const moduleId = router.query.moduleId;
@@ -34,6 +35,9 @@ export default function LearningScreen() {
                 router.replace({
                     query: { ...router.query, item: response.data[0]?.item_id },
                 });
+            } else {
+                setCurrentItem(null);
+                setLoading(false);
             }
 
         }).catch(err => {
@@ -43,6 +47,14 @@ export default function LearningScreen() {
             });
         })
     }, []);
+
+    useEffect(() => {
+        if (!loading) {
+            setSuccessMessage(null);
+            setFailureMessage(null);
+            setNextActive(false);
+        }
+    }, [resetInput])
 
     const itemId = router.query.item;
     const [currentItem, setCurrentItem] = useState(null);
@@ -93,8 +105,8 @@ export default function LearningScreen() {
     const successInputHandler = function () {
         const audio = new Audio(currentItem?.sound_url || '/sounds/apple.mp3');
         audio.onended = () => {
-            
-            if(nextItemId) {
+
+            if (nextItemId) {
                 setNextActive(true);
                 setSuccessMessage("Yay! Success :)");
             } else {
@@ -105,14 +117,14 @@ export default function LearningScreen() {
     }
 
     const failureInputHandler = function () {
-        setFailureMessage("Nope! Failure :(");
+        setFailureMessage("Nope! Failure :( Please Retry!");
     }
 
     return (
         <Layout title="Learning Screen">
             <div className='w-full h-full flex px-10'>
                 <div className='h-full flex items-center group'>
-                    <button className='w-[50px] p-2 group-hover:h-full bg-gray-100 group-hover:bg-gray-200 bg-opacity-50 group-hover:bg-opacity-80 rounded-md'
+                    <button className='w-[50px] p-2 sm:group-hover:h-full bg-gray-100 group-hover:bg-gray-200 bg-opacity-50 group-hover:bg-opacity-80 rounded-md'
                         onClick={() => { handleItemChange(prevItemId) }}
                         disabled={!prevItemId}
                     >
@@ -136,11 +148,16 @@ export default function LearningScreen() {
                                 <div className='relative w-full h-3/4 flex flex-col justify-around items-center'>
                                     <div className='absolute right-0 top-0 flex'>
                                         <div className='mr-3'>
+                                            <button className='box-border w-[35px] h-[35px] bg-white flex items-center justify-around font-bold shadow-md hover:bg-gray-200 rounded' onClick={() => { setResetInput(state => !state) }}>
+                                                <Icon icon={faRefresh} className="w-[20px]"/> 
+                                            </button>
+                                        </div>
+                                        <div className='mr-3'>
                                             <SoundButton src={currentItem.sound_url} />
                                         </div>
                                         <button className='py-1 px-3 bg-white border border-purple text-purple rounded-md' onClick={handleShowHint}>Hint</button>
                                     </div>
-                                    <div className='w-full flex justify-around items-center'>
+                                    <div className='w-full flex flex-col sm:flex-row justify-around items-center'>
                                         <div className='w-max flex flex-col items-center'>
                                             <div className='w-max border border-gray-200 rounded-lg overflow-hidden shadow-md'>
                                                 <img src={currentItem.image_url} alt={currentItem.name + " Image"} width={150} height={150} className="h-auto" />
@@ -148,11 +165,11 @@ export default function LearningScreen() {
                                             <div className={'bg-gray-100 text-center px-10 py-2 rounded-md mt-5 text-center text-xl font-bold uppercase ' + (showHint ? 'visible' : 'invisible')}>{currentItem.name}</div>
                                         </div>
                                         {inputType === "kb" ?
-                                            <KeyboardInputHandler correctWord={currentItem.name.trim().toLowerCase()} successHandler={successInputHandler} failureHandler={failureInputHandler} /> :
+                                            <KeyboardInputHandler correctWord={currentItem.name.trim().toLowerCase()} successHandler={successInputHandler} failureHandler={failureInputHandler} resetInput={resetInput} /> :
                                             inputType === "dnd" ?
-                                                <DragAndDropInputHandler correctWord={currentItem.name.trim().toLowerCase()} successHandler={successInputHandler} failureHandler={failureInputHandler} /> :
+                                                <DragAndDropInputHandler correctWord={currentItem.name.trim().toLowerCase()} successHandler={successInputHandler} failureHandler={failureInputHandler} resetInput={resetInput} /> :
                                                 inputType === "dr" ?
-                                                    <DrawInputHandler correctWord={currentItem.name.trim().toLowerCase()} successHandler={successInputHandler} failureHandler={failureInputHandler} /> :
+                                                    <DrawInputHandler correctWord={currentItem.name.trim().toLowerCase()} successHandler={successInputHandler} failureHandler={failureInputHandler} resetInput={resetInput} /> :
                                                     null
                                         }
                                     </div>
@@ -176,7 +193,7 @@ export default function LearningScreen() {
 
                 </div>
                 <div className='h-full flex items-center group'>
-                    <button className='w-[50px] p-2 group-hover:h-full bg-gray-100 group-hover:bg-gray-200 bg-opacity-50 group-hover:bg-opacity-80 rounded-md'
+                    <button className='w-[50px] p-2 sm:group-hover:h-full bg-gray-100 group-hover:bg-gray-200 bg-opacity-50 group-hover:bg-opacity-80 rounded-md'
                         style={(nextActive ? {
                             color: "#fff",
                             backgroundColor: '#a4d955'

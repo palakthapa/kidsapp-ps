@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function shuffleArray(array) {
@@ -9,10 +9,15 @@ function shuffleArray(array) {
     return array;
 }
 
-export default function DraggableComponent({ correctWord, successHandler, failureHandler }) {
+export default function DraggableComponent({ correctWord, successHandler, failureHandler, resetInput }) {
     const items = shuffleArray(correctWord.split(''));
     const [draggedItems, setDraggedItems] = useState(items);
     const [placedItems, setPlacedItems] = useState({});
+
+    useEffect(()=> {
+        setDraggedItems(items);
+        setPlacedItems({});
+    }, [resetInput]);
 
     const handleOnDragEnd = (result) => {
         if (!result.destination) return;
@@ -50,7 +55,7 @@ export default function DraggableComponent({ correctWord, successHandler, failur
 
     return (
         <DragDropContext onDragEnd={handleOnDragEnd}>
-            <div className="w-max h-max flex flex-col justify-around">
+            <div className="w-4/5 sm:w-max h-max flex flex-col justify-around">
                 <div className="flex flex-wrap justify-around mb-5">
                     {items.map((item, index) => (
                         <Droppable droppableId={"target-" + index} key={index}>
@@ -58,7 +63,7 @@ export default function DraggableComponent({ correctWord, successHandler, failur
                                 <div
                                     {...provided.droppableProps}
                                     ref={provided.innerRef}
-                                    className="bg-gray-200 w-[40px] h-[40px] border border-dashed border-gray-700 rounded-md mr-2"
+                                    className="bg-gray-200 w-[40px] h-[40px] border border-dashed border-gray-700 rounded-md mr-2 mb-2"
                                 >
                                     {placedItems[index] ? <div className="w-full h-full text-center py-2 uppercase">{placedItems[index]}</div> : null}
                                     {provided.placeholder}
@@ -70,7 +75,7 @@ export default function DraggableComponent({ correctWord, successHandler, failur
 
                 <Droppable droppableId="items" direction="horizontal">
                     {(provided) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef} className={"relative h-[40px] flex justify-around w-[" + (40 * (items.length + 1)) + "px]"}>
+                        <div {...provided.droppableProps} ref={provided.innerRef} className={"relative h-[40px] flex flex-wrap justify-around w-[" + (40 * (items.length + 1)) + "px]"}>
                             {draggedItems.map((item, index) => (
                                 <Draggable key={index} draggableId={"item-" + index} index={index} >
                                     {(provided) => (
@@ -78,7 +83,7 @@ export default function DraggableComponent({ correctWord, successHandler, failur
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
                                             ref={provided.innerRef}
-                                            className="bg-gray-200 w-[40px] h-[40px] text-center border border-gray-700 rounded-md py-2 uppercase mr-2"
+                                            className="bg-gray-200 w-[40px] h-[40px] text-center border border-gray-700 rounded-md py-2 uppercase mr-2 mb-2"
                                         >
                                             {item}
                                         </div>

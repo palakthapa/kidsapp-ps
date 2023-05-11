@@ -26,7 +26,6 @@ export default async function getPnSModules(req, res) {
                         "name": element.name,
                         "content": element.content,
                         "images": [],
-                        "sound_url": "/api/file/pns/" + element.module_id + "/sound",
                         "timestamp": element.timestamp
                     }
                     for (let i = 0; i < element.images.length; i++) {

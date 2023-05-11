@@ -5,7 +5,7 @@ const EMAIL = config.MEGA_EMAIL;
 const PASSWORD = config.MEGA_PASSWORD;
 
 export default (function () {
-
+    // if email and password are not specified
     if (!(EMAIL && PASSWORD)) {
         return function () {
             const error = new Error(MEGA_ERROR_MESSAGES["CONN_CREDS_UNDEF"]);
@@ -14,6 +14,7 @@ export default (function () {
         }
     }
 
+    // return a promise that resolves in an object instance of MEGA Connection
     let megaInstance = null;
     return async function () {
         if (megaInstance) return megaInstance;
